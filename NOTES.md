@@ -29,12 +29,22 @@ Paste it (or tell the new chat to read it) at the start of the next one.
 - Wi-Fi: AP with a hard-coded password (WPA2).
 
 ## Code status
-- Commit 35eb819: ESP-IDF skeleton (untested, not yet built).
-  - `main/`: app_main.c (state machine), fans, humidity, sensor (STUB), storage (SD), web (AP + page), config.h.
+- Framework DECIDED: PlatformIO with `framework = espidf` (ESP-IDF 5.3.x via PlatformIO's espressif32 platform).
+  Reason: best control of watchdog/SD/Wi-Fi AP; Arduino can be added later as a component if needed.
+- Layout: `platformio.ini`, root `CMakeLists.txt`, `sdkconfig.defaults`, sources in `src/`
+  (app_main.c state machine, fans, humidity, sensor = STUB, storage = SD over SPI, web = AP + page, config.h).
+- BUILD VERIFIED: `pio run` succeeds. RAM 10.7%, Flash 85.7% of the 1 MB default app partition.
+  - Flash is near the limit (Wi-Fi + HTTP + FATFS). Next: add a custom `partitions.csv` with a larger app partition (4 MB flash total).
+  - Fix needed once on this PC: `%USERPROFILE%\.platformio\penv\Scripts\python.exe -m pip install intelhex` (already done).
+  - Build command: `%USERPROFILE%\.platformio\penv\Scripts\pio.exe run` (first build ~6 min, later ~15 s).
+- Not yet tested on hardware. Sensor driver is a stub, so fans never run until BME280 is implemented.
+- Commits: 35eb819 ESP-IDF skeleton, 1a14b96 NOTES.md, then PlatformIO conversion.
+- Do NOT use the Espressif VS Code extension build on this folder; use PlatformIO only.
+- KiCad files will be added to the repo by the owner (next session: review fan gates, pull-ups, BME280 pins).
 - Environment: ESP-IDF 5.3.2 is installed at `C:\Users\ishro\esp\v5.3.2\esp-idf` (VS Code Espressif extension 2.3.0). PlatformIO extension and its espressif32 platform are also installed.
 
 ## Open items
-- [ ] Choose framework: PlatformIO + `espidf` vs `arduino`, then convert the layout (`platformio.ini`, `src/`).
+- [ ] Add custom partition table (flash is 85.7% of 1 MB app partition).
 - [ ] BME280 I2C pins (GPIO8/9 are placeholders in config.h).
 - [ ] AP SSID/password (placeholder in config.h).
 - [ ] Confirm the delta rule: code uses fans ON when (inside AH - outside AH) >= 0.5 g/m3. Spec said "-0.5".
