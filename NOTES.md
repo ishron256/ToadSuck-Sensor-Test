@@ -24,8 +24,8 @@ Paste it (or tell the new chat to read it) at the start of the next one.
 - CONFIRMED SPI bus (PCB): GPIO35 MOSI -> SD J3.3 (R19 pull-up); GPIO37 MISO -> SD J3.7 + BME280 SDO (R21 pull-up); GPIO36 -> SD CLK J3.5 (R20/R30 pull-ups) and via R25 100R to net SPI_SCK (BME280 SCK + J8.3).
 - CONFIRMED chip selects: BME280 (U3) CSB = GPIO10 (net SPI_CS, also J8.5). SD card CS (J3.2, R10 pull-up) = GPIO15, NOT GPIO10. config.h updated (PIN_SD_CS=15, PIN_BME280_CS=10). BME280 is on SPI, not I2C.
 - J8 "Snsr Conn" (6-pin external sensor header): 1=3.3V, 2=MISO, 3=SCK, 4=Net-(U3-SDI), 5=CS, 6=GND.
-- BUG TO VERIFY: BME280 SDI (U3.3) is on net Net-(U3-SDI) with ONLY J8.4. It is NOT connected to SPI_MOSI (GPIO35). Unless a jumper/solder link exists, the BME280 cannot receive commands. Confirm in the schematic whether J8.4 is meant to be jumpered to MOSI.
-- Note: SCK for the SD card (GPIO36 net) is separated from the BME280 SCK by R25; the SD CLK net has two 10k pull-ups (R20, R30) to 3.3V.
+- RESOLVED (owner confirmed): BME280 SDI (U3.3) is on J8.4, which a cable connects to J6.4 = SPI_MOSI (GPIO35). J6 "Snsr Conn" pinout: 1=3.3V, 2=MISO, 3=SCK, 4=MOSI, 5=CS, 6=GND. So the BME280 is on a separate sensor board/cable (J8 side) and needs that cable fitted.
+- Owner confirmed: SD CLK net pull-ups (R20/R30) and R25 100R isolation are intentional.
 - J4: jumper/switch input on GPIO46 (strapping pin; R26 pull-down, R15 to 3.3V). Purpose to confirm.
 - Unused GPIOs left unconnected: 0,1,2,3,6,7,8,9,11,12,18,21,38-42,43,44,45,47,48.
 - GPIO16/GPIO17 drive LEDs D5/D9.
