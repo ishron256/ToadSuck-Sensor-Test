@@ -26,7 +26,9 @@ Paste it (or tell the new chat to read it) at the start of the next one.
 - J8 "Snsr Conn" (6-pin external sensor header): 1=3.3V, 2=MISO, 3=SCK, 4=Net-(U3-SDI), 5=CS, 6=GND.
 - RESOLVED (owner confirmed): BME280 SDI (U3.3) is on J8.4, which a cable connects to J6.4 = SPI_MOSI (GPIO35). J6 "Snsr Conn" pinout: 1=3.3V, 2=MISO, 3=SCK, 4=MOSI, 5=CS, 6=GND. So the BME280 is on a separate sensor board/cable (J8 side) and needs that cable fitted.
 - Owner confirmed: SD CLK net pull-ups (R20/R30) and R25 100R isolation are intentional.
-- J4: jumper/switch input on GPIO46 (strapping pin; R26 pull-down, R15 to 3.3V). Purpose to confirm.
+- J4 (GPIO46 strapping select): J4.1 -> 3.3V via R15, J4.2 -> GPIO46 (R26 pull-down), J4.3 -> GND. Pins 2-3 shorted = GPIO46 LOW (use for USB flashing; TRM lists GPIO0=0 + GPIO46=1 as invalid). Pins 1-2 shorted = GPIO46 HIGH. Recommended: keep 2-3 (LOW) always. Owner said "jumper 1&2 for low" - this contradicts the netlist; pins 1-2 give HIGH. CONFIRM before flashing.
+- GPIO0 is unconnected on the PCB (internal pull-up); EN (pin 3) is a separate reset switch S2. USB flashing relies on the S3 USB-Serial-JTAG auto-reset (untested).
+- AP security: prototype, no Internet, owner accepts hard-coded password for now.
 - Unused GPIOs left unconnected: 0,1,2,3,6,7,8,9,11,12,18,21,38-42,43,44,45,47,48.
 - GPIO16/GPIO17 drive LEDs D5/D9.
 
@@ -60,9 +62,9 @@ Paste it (or tell the new chat to read it) at the start of the next one.
 ## Open items
 - [ ] Add custom partition table (flash is 85.7% of 1 MB app partition).
 - [ ] BME280 I2C pins (GPIO8/9 are placeholders in config.h).
-- [ ] AP SSID/password (placeholder in config.h).
-- [ ] Confirm the delta rule: code uses fans ON when (inside AH - outside AH) >= 0.5 g/m3. Spec said "-0.5".
-- [ ] Start-up Fan 1 test duration (placeholder 10 s).
+- [x] AP password: prototype, security not a concern; keep placeholder (change later).
+- [x] Delta rule CONFIRMED: fans run when outside AH is >= 0.5 g/m3 drier than inside (inside - outside >= 0.5).
+- [x] Start-up Fan 1 test = 4 s (config.h).
 - [ ] Cold-stir duration (placeholder 2 min) and idle recheck period (placeholder 6 h).
 - [ ] Outside-reading retry/timeout rules and measured settle times.
 - [ ] Write the BME280 driver.

@@ -21,12 +21,12 @@
 #define AP_PASSWORD     "change-me-please"   /* TODO: real credentials, >= 8 chars */
 
 /* Behaviour (all times are uptime since reset) */
-#define STARTUP_FAN1_TEST_MS    (10u * 1000u)             /* TODO confirm */
+#define STARTUP_FAN1_TEST_MS    (4u * 1000u)              /* confirmed */
 #define OUTSIDE_SETTLE_MS       (12u * 60u * 1000u)
 #define COLD_LOCKOUT_F          35.0f                     /* TODO confirm */
 #define COLD_SLEEP_MS           (6u * 3600u * 1000u)
 #define COLD_STIR_MS            (2u * 60u * 1000u)        /* TODO confirm */
 #define FAN_RUN_MS              (106u * 60u * 1000u)
-#define AH_DELTA_ON_GM3         (-0.5f)  /* TODO confirm sign/definition: inside - outside */
+#define AH_DELTA_ON_GM3         (-0.5f)  /* confirmed: fans run when outside is >= 0.5 g/m3 drier than inside (inside - outside >= 0.5) */
 #define WDT_FEED_PERIOD_MS      1000u
 #define STATE_PROGRESS_MAX_MS   (COLD_SLEEP_MS + 10u * 60u * 1000u)
