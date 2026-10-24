@@ -22,11 +22,12 @@ typedef enum {
     ST_FAN_RUN,        /* Fan 1 + Fan 2 (+ external) together */
     ST_COLD_SLEEP,     /* below 35F: fans off, recheck every 6 h */
     ST_COLD_STIR,
+    ST_RETRY,          /* outside wetter: wait 5 min, re-read, decide again */
     ST_IDLE,
 } state_t;
 
 static const char *const NAMES[] = {
-    "STARTUP_TEST", "OUTSIDE_SETTLE", "DECIDE", "FAN_RUN", "COLD_SLEEP", "COLD_STIR", "IDLE"
+    "STARTUP_TEST", "OUTSIDE_SETTLE", "DECIDE", "FAN_RUN", "COLD_SLEEP", "COLD_STIR", "RETRY", "IDLE"
 };
 
 static state_t s_state = ST_STARTUP_TEST;
@@ -63,10 +64,15 @@ static void step(void)
         s_in = sensor_read();
         if (!s_in.valid || !s_out.valid) { enter(ST_IDLE); break; }
         if (c_to_f(s_out.temp_c) < COLD_LOCKOUT_F) { enter(ST_COLD_SLEEP); break; }
-        float delta = s_in.ah_gm3 - s_out.ah_gm3;   /* TODO confirm definition */
-        enter(delta >= -AH_DELTA_ON_GM3 ? ST_FAN_RUN : ST_IDLE);
+        float delta = s_in.ah_gm3 - s_out.ah_gm3;   /* inside - outside */
+        enter(delta >= -AH_DELTA_ON_GM3 ? ST_FAN_RUN : ST_RETRY);
         break;
     }
+
+    case ST_RETRY:   /* outside wetter: re-read every 5 min, no new settle, no timeout */
+        fans_all_off();
+        if (elapsed() >= RETRY_MS) { s_out = sensor_read(); enter(ST_DECIDE); }
+        break;
 
     case ST_FAN_RUN:
         fans_all_on();
