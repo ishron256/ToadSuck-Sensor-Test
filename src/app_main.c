@@ -50,7 +50,11 @@ static void step(void)
     switch (s_state) {
     case ST_STARTUP_TEST:
         fan1_set(true);
-        if (elapsed() >= STARTUP_FAN1_TEST_MS) { fans_all_off(); enter(ST_OUTSIDE_SETTLE); }
+        if (elapsed() >= STARTUP_FAN1_TEST_MS) {
+            s_in = sensor_read();   /* fan cavity holds inside air; assumption: startup test also takes the first inside reading */
+            fans_all_off();
+            enter(ST_OUTSIDE_SETTLE);
+        }
         break;
 
     case ST_OUTSIDE_SETTLE:
@@ -61,7 +65,7 @@ static void step(void)
         break;
 
     case ST_DECIDE: {
-        s_in = sensor_read();
+        /* s_in was captured at the end of the last fan run (or startup test); s_out after the settle */
         if (!s_in.valid || !s_out.valid) { enter(ST_IDLE); break; }
         if (c_to_f(s_out.temp_c) < COLD_LOCKOUT_F) { enter(ST_COLD_SLEEP); break; }
         float delta = s_in.ah_gm3 - s_out.ah_gm3;   /* inside - outside */
@@ -76,7 +80,11 @@ static void step(void)
 
     case ST_FAN_RUN:
         fans_all_on();
-        if (elapsed() >= FAN_RUN_MS) { fans_all_off(); enter(ST_OUTSIDE_SETTLE); }
+        if (elapsed() >= FAN_RUN_MS) {
+            s_in = sensor_read();   /* fan cavity is full of inside air at the end of the run */
+            fans_all_off();
+            enter(ST_OUTSIDE_SETTLE);
+        }
         break;
 
     case ST_COLD_SLEEP:

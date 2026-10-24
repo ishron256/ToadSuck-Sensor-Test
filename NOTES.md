@@ -67,7 +67,7 @@ Paste it (or tell the new chat to read it) at the start of the next one.
 - [x] Start-up Fan 1 test = 4 s (config.h).
 - [x] Cold stir = 20 min (both fans). Idle recheck = 6 h (CONFIRMED, but see open question on 5-min retry).
 - [x] Retry rule: if outside is wetter, state RETRY waits 5 min, re-reads, decides again; no timeout, no new 12-min settle. 6 h IDLE is now only used when a reading is invalid.
-- [ ] OPEN QUESTION: with ONE BME280 (on the remote sensor board via J8/J6), where does the "inside" reading come from? Code currently reads the same sensor for both. Need the physical design (second sensor on J5/Snsr 2? sensor location?).
+- [x] Inside/outside readings (owner confirmed): single BME280. INSIDE reading is taken at the end of a fan run (fan cavity full of inside air). OUTSIDE reading is taken after the 12-min fans-off settle. DECIDE compares the stored inside reading with the new outside reading. ASSUMPTION to confirm: the first inside reading is taken at the end of the 4 s start-up Fan 1 test (otherwise there is no inside value on a fresh reset).
 - [x] BME280 driver written (src/sensor.c): own SPI driver per Bosch datasheet (Adafruit lib is Arduino-only). Shared SPI2 bus init in src/spibus.c. Builds; NOT tested on hardware (needs sensor cable J8-J6 fitted).
 - [ ] Review KiCad schematic/PCB (owner to supply).
 
