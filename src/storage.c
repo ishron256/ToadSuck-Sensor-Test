@@ -12,19 +12,6 @@ static bool s_ok;
 
 bool storage_init(void)
 {
-    spi_bus_config_t bus = {
-        .mosi_io_num = PIN_SD_MOSI,
-        .miso_io_num = PIN_SD_MISO,
-        .sclk_io_num = PIN_SD_SCK,
-        .quadwp_io_num = -1,
-        .quadhd_io_num = -1,
-        .max_transfer_sz = 4096,
-    };
-    if (spi_bus_initialize(SPI2_HOST, &bus, SDSPI_DEFAULT_DMA) != ESP_OK) {
-        ESP_LOGW(TAG, "SPI bus init failed");
-        return false;
-    }
-
     sdmmc_host_t host = SDSPI_HOST_DEFAULT();
     host.slot = SPI2_HOST;
     host.max_freq_khz = SD_CLOCK_KHZ;

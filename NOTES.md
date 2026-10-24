@@ -67,7 +67,7 @@ Paste it (or tell the new chat to read it) at the start of the next one.
 - [x] Start-up Fan 1 test = 4 s (config.h).
 - [x] Cold stir = 20 min (both fans). Idle recheck = 6 h (CONFIRMED, but see open question on 5-min retry).
 - [ ] Outside-reading retry/timeout rules and measured settle times.
-- [ ] Write the BME280 driver.
+- [x] BME280 driver written (src/sensor.c): own SPI driver per Bosch datasheet (Adafruit lib is Arduino-only). Shared SPI2 bus init in src/spibus.c. Builds; NOT tested on hardware (needs sensor cable J8-J6 fitted).
 - [ ] Review KiCad schematic/PCB (owner to supply).
 
 ## What to bring to a new chat

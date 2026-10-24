@@ -2,6 +2,7 @@
 #include "fans.h"
 #include "humidity.h"
 #include "sensor.h"
+#include "spibus.h"
 #include "storage.h"
 #include "web.h"
 #include "esp_log.h"
@@ -100,7 +101,8 @@ void app_main(void)
     }
 
     esp_task_wdt_add(NULL);
-    sensor_init();
+    if (spibus_init() != ESP_OK) ESP_LOGE(TAG, "SPI bus init failed");
+    if (sensor_init() != ESP_OK) ESP_LOGE(TAG, "BME280 init failed");
     storage_init();   /* failure is non-fatal */
     web_start();
 
