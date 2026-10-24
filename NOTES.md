@@ -60,12 +60,12 @@ Paste it (or tell the new chat to read it) at the start of the next one.
 - Environment: ESP-IDF 5.3.2 is installed at `C:\Users\ishro\esp\v5.3.2\esp-idf` (VS Code Espressif extension 2.3.0). PlatformIO extension and its espressif32 platform are also installed.
 
 ## Open items
-- [ ] Add custom partition table (flash is 85.7% of 1 MB app partition).
+- [x] Partition: single large app partition (1.5 MB) via platformio.ini `board_build.partitions = partitions_singleapp_large.csv`; build uses 58.5%. No OTA, no custom CSV needed.
 - [ ] BME280 I2C pins (GPIO8/9 are placeholders in config.h).
 - [x] AP password: prototype, security not a concern; keep placeholder (change later).
 - [x] Delta rule CONFIRMED: fans run when outside AH is >= 0.5 g/m3 drier than inside (inside - outside >= 0.5).
 - [x] Start-up Fan 1 test = 4 s (config.h).
-- [ ] Cold-stir duration (placeholder 2 min) and idle recheck period (placeholder 6 h).
+- [x] Cold stir = 20 min (both fans). Idle recheck = 6 h (CONFIRMED, but see open question on 5-min retry).
 - [ ] Outside-reading retry/timeout rules and measured settle times.
 - [ ] Write the BME280 driver.
 - [ ] Review KiCad schematic/PCB (owner to supply).
