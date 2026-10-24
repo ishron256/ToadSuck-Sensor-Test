@@ -16,15 +16,16 @@ Paste it (or tell the new chat to read it) at the start of the next one.
 - GPIO5 "Snsr 2": spare, unused.
 - Strapping pins to avoid: GPIO0, 3, 45, 46.
 
-## Netlist review (SmartVent_V3_netlist_0522.net, 2026-10-24)
-- WARNING: the netlist is dated 2026-05-22, but `SmartVent_V3.kicad_sch` is dated 2026-06-19 and has SPI_CS/SCK/MOSI/MISO labels the netlist lacks. The netlist is likely STALE. Findings below must be re-verified against a fresh netlist export (KiCad: File > Export > Netlist, or `kicad-cli sch export netlist`). kicad-cli is not installed on this PC.
-- Hardware files are in `Hardware/kicad/` (Gerbers, netlist, BOM, PDFs, .kicad_pro). `untitled.kicad_sch` is an EMPTY stub: the real schematic is still needed.
+## Hardware review (from latest PCB file SmartVent_V3.kicad_pcb, 2026-07-01)
+- Source of truth: `Hardware/kicad/SmartVent_V3.kicad_pcb` (newest). The `_netlist_0522.net` is STALE (superseded). Original KiCad project folder: `C:\Users\ishro\Documents\GitHub\TSI_SmartVent_V3_May26\SmartVent_V3`. kicad-cli is not installed.
 - CONFIRMED fans: GPIO13 -> R13 series -> Q2 (2N7002K) -> R6 -> Q1 (P-FET) gate, R5 pulls gate to +12V, R14 10k pull-down on GPIO13. GPIO14 -> R7 -> Q3 -> R16 -> Q4 gate, R4 pull-up to +12V, R8 pull-down. High = fan on, boot/reset = off. Fan 1 out J17, Fan 2 out J15.
 - CONFIRMED GPIO4 VBUS divider: R23 (VBUS) / R24 (GND).
 - CONFIRMED GPIO5 = "Snsr 2 Data" to J5.3 (spare).
-- CORRECTION: the BME280 (U3) is on SPI, not I2C. It shares the bus: CSB = GPIO10, SDI = GPIO35, SDO = GPIO37, SCK = GPIO36 via R25 100R (R30 10k pull-up to 3.3V on the SCK net).
-- CORRECTION: the SD card CS (J3 DAT3) is on GPIO15, not GPIO10.
-- POSSIBLE SCHEMATIC BUG (verify): net "J3-CLK" ties J3 pins 5 and 7 (CLK and DAT0) together with GPIO37 (MISO) and pull-ups R20/R21. SD CLK does not appear to connect to GPIO36. Check against the real schematic/PCB.
+- CONFIRMED SPI bus (PCB): GPIO35 MOSI -> SD J3.3 (R19 pull-up); GPIO37 MISO -> SD J3.7 + BME280 SDO (R21 pull-up); GPIO36 -> SD CLK J3.5 (R20/R30 pull-ups) and via R25 100R to net SPI_SCK (BME280 SCK + J8.3).
+- CONFIRMED chip selects: BME280 (U3) CSB = GPIO10 (net SPI_CS, also J8.5). SD card CS (J3.2, R10 pull-up) = GPIO15, NOT GPIO10. config.h updated (PIN_SD_CS=15, PIN_BME280_CS=10). BME280 is on SPI, not I2C.
+- J8 "Snsr Conn" (6-pin external sensor header): 1=3.3V, 2=MISO, 3=SCK, 4=Net-(U3-SDI), 5=CS, 6=GND.
+- BUG TO VERIFY: BME280 SDI (U3.3) is on net Net-(U3-SDI) with ONLY J8.4. It is NOT connected to SPI_MOSI (GPIO35). Unless a jumper/solder link exists, the BME280 cannot receive commands. Confirm in the schematic whether J8.4 is meant to be jumpered to MOSI.
+- Note: SCK for the SD card (GPIO36 net) is separated from the BME280 SCK by R25; the SD CLK net has two 10k pull-ups (R20, R30) to 3.3V.
 - J4: jumper/switch input on GPIO46 (strapping pin; R26 pull-down, R15 to 3.3V). Purpose to confirm.
 - Unused GPIOs left unconnected: 0,1,2,3,6,7,8,9,11,12,18,21,38-42,43,44,45,47,48.
 - GPIO16/GPIO17 drive LEDs D5/D9.

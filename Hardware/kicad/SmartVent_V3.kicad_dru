@@ -1,0 +1,99 @@
+(version 1)
+# =========================================================
+# SmartVent Functional Rules (KiCad 10 Compatible, Portable)
+# =========================================================
+
+# --- USB differential pair (simple, portable) ---
+(rule "USB_DIFF_gap_and_width"
+  (constraint track_width (min 0.15mm))
+  (constraint diff_pair_gap (min 0.15mm))
+  (condition "A.NetClass == 'USB_DIFF' || B.NetClass == 'USB_DIFF'")
+)
+
+(rule "USB_DIFF_clearance"
+  (constraint clearance (min 0.15mm))
+  (condition "A.NetClass == 'USB_DIFF' || B.NetClass == 'USB_DIFF'")
+)
+
+
+# --- SPI bus rules ---
+(rule "SPI_BUS_clearance"
+  (constraint clearance (min 0.15mm))
+  (condition "A.NetClass == 'SPI_BUS' || B.NetClass == 'SPI_BUS'")
+)
+
+(rule "SPI_BUS_skew"
+  (constraint skew (max 0.50mm))
+  (condition "A.NetClass == 'SPI_BUS'")
+)
+
+
+# --- ESP32-S3 module spacing (U1) ---
+(rule "ESP32_internal_clearance"
+  (constraint clearance (min 0.12mm))
+  (condition "A.Reference == 'U1' && B.Reference == 'U1'")
+)
+
+(rule "ESP32_to_others_clearance"
+  (constraint clearance (min 0.20mm))
+  (condition "(A.Reference == 'U1' && B.Reference != 'U1') || (B.Reference == 'U1' && A.Reference != 'U1')")
+)
+
+
+# --- Power nets (VBUS_SENSE + POWER_3V3) ---
+(rule "POWER_thermals"
+  (constraint thermal_spoke_width (min 0.30mm))
+  (constraint thermal_relief_gap (min 0.25mm))
+  (condition "A.NetClass == 'VBUS_SENSE' || A.NetClass == 'POWER_3V3'")
+)
+
+(rule "POWER_min_clearance"
+  (constraint clearance (min 0.25mm))
+  (condition "A.NetClass == 'VBUS_SENSE' || A.NetClass == 'POWER_3V3' || B.NetClass == 'VBUS_SENSE' || B.NetClass == 'POWER_3V3'")
+)
+
+
+# --- Sensor analog isolation ---
+(rule "SENSOR_vs_highspeed_clearance"
+  (constraint clearance (min 0.25mm))
+  (condition "(A.NetClass == 'SENSOR_ANALOG' && (B.NetClass == 'SPI_BUS' || B.NetClass == 'USB_DIFF' || B.NetClass == 'LOGIC')) || (B.NetClass == 'SENSOR_ANALOG' && (A.NetClass == 'SPI_BUS' || A.NetClass == 'USB_DIFF' || A.NetClass == 'LOGIC'))")
+)
+
+
+# --- GND stitching and behavior ---
+(rule "GND_to_GND_clearance"
+  (constraint clearance (min 0.15mm))
+  (condition "A.Net == 'GND' && B.Net == 'GND'")
+)
+
+(rule "GND_via_geometry"
+  (constraint via_diameter (min 0.60mm))
+  (constraint hole_size (min 0.30mm))
+  (condition "A.Net == 'GND'")
+)
+
+
+# --- Logic nets ---
+(rule "LOGIC_min_clearance"
+  (constraint clearance (min 0.15mm))
+  (condition "A.NetClass == 'LOGIC' || B.NetClass == 'LOGIC'")
+)
+
+
+# --- Default nets ---
+(rule "DEFAULT_min_clearance"
+  (constraint clearance (min 0.20mm))
+  (condition "A.NetClass == 'Default' || B.NetClass == 'Default'")
+)
+
+
+# --- VBUS sense path ---
+(rule "VBUS_SENSE_min_width"
+  (constraint track_width (min 0.80mm))
+  (condition "A.NetClass == 'VBUS_SENSE'")
+)
+
+(rule "VBUS_SENSE_keepaway_from_USB_DIFF"
+  (constraint clearance (min 0.30mm))
+  (condition "(A.NetClass == 'VBUS_SENSE' && B.NetClass == 'USB_DIFF') || (B.NetClass == 'VBUS_SENSE' && A.NetClass == 'USB_DIFF')")
+)
