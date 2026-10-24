@@ -9,14 +9,12 @@
 #define PIN_SD_MISO     37
 #define PIN_SD_SCK      36
 #define PIN_SD_MOSI     35
-#define PIN_SD_CS       10
+#define PIN_SD_CS       15   /* from netlist: SD DAT3/CS is on GPIO15 (U2 pin 8) */
 #define SD_CLOCK_KHZ    20000
 #define SD_MOUNT_POINT  "/sdcard"
 
-/* BME280 I2C: PLACEHOLDERS, set to the real board pins */
-#define PIN_I2C_SDA      8
-#define PIN_I2C_SCL      9
-#define BME280_ADDR      0x76
+/* BME280 is on the same SPI bus as the SD card (netlist: U3) */
+#define PIN_BME280_CS   10
 
 /* Wi-Fi AP */
 #define AP_SSID         "TSI_SmartVent"

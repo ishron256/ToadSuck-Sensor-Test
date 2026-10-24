@@ -16,6 +16,18 @@ Paste it (or tell the new chat to read it) at the start of the next one.
 - GPIO5 "Snsr 2": spare, unused.
 - Strapping pins to avoid: GPIO0, 3, 45, 46.
 
+## Netlist review (SmartVent_V3_netlist_0522.net, 2026-10-24)
+- Hardware files are in `Hardware/kicad/` (Gerbers, netlist, BOM, PDFs, .kicad_pro). `untitled.kicad_sch` is an EMPTY stub: the real schematic is still needed.
+- CONFIRMED fans: GPIO13 -> R13 series -> Q2 (2N7002K) -> R6 -> Q1 (P-FET) gate, R5 pulls gate to +12V, R14 10k pull-down on GPIO13. GPIO14 -> R7 -> Q3 -> R16 -> Q4 gate, R4 pull-up to +12V, R8 pull-down. High = fan on, boot/reset = off. Fan 1 out J17, Fan 2 out J15.
+- CONFIRMED GPIO4 VBUS divider: R23 (VBUS) / R24 (GND).
+- CONFIRMED GPIO5 = "Snsr 2 Data" to J5.3 (spare).
+- CORRECTION: the BME280 (U3) is on SPI, not I2C. It shares the bus: CSB = GPIO10, SDI = GPIO35, SDO = GPIO37, SCK = GPIO36 via R25 100R (R30 10k pull-up to 3.3V on the SCK net).
+- CORRECTION: the SD card CS (J3 DAT3) is on GPIO15, not GPIO10.
+- POSSIBLE SCHEMATIC BUG (verify): net "J3-CLK" ties J3 pins 5 and 7 (CLK and DAT0) together with GPIO37 (MISO) and pull-ups R20/R21. SD CLK does not appear to connect to GPIO36. Check against the real schematic/PCB.
+- J4: jumper/switch input on GPIO46 (strapping pin; R26 pull-down, R15 to 3.3V). Purpose to confirm.
+- Unused GPIOs left unconnected: 0,1,2,3,6,7,8,9,11,12,18,21,38-42,43,44,45,47,48.
+- GPIO16/GPIO17 drive LEDs D5/D9.
+
 ## Behaviour decisions
 - Humidity unit: absolute humidity (g/m3), computed from BME280 temperature + RH (Magnus formula).
 - One BME280. "Outside" reading is taken after a 12-minute fans-off settle (method inherited from the earlier public-domain SmartVent paper).
