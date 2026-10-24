@@ -17,6 +17,7 @@ Paste it (or tell the new chat to read it) at the start of the next one.
 - Strapping pins to avoid: GPIO0, 3, 45, 46.
 
 ## Netlist review (SmartVent_V3_netlist_0522.net, 2026-10-24)
+- WARNING: the netlist is dated 2026-05-22, but `SmartVent_V3.kicad_sch` is dated 2026-06-19 and has SPI_CS/SCK/MOSI/MISO labels the netlist lacks. The netlist is likely STALE. Findings below must be re-verified against a fresh netlist export (KiCad: File > Export > Netlist, or `kicad-cli sch export netlist`). kicad-cli is not installed on this PC.
 - Hardware files are in `Hardware/kicad/` (Gerbers, netlist, BOM, PDFs, .kicad_pro). `untitled.kicad_sch` is an EMPTY stub: the real schematic is still needed.
 - CONFIRMED fans: GPIO13 -> R13 series -> Q2 (2N7002K) -> R6 -> Q1 (P-FET) gate, R5 pulls gate to +12V, R14 10k pull-down on GPIO13. GPIO14 -> R7 -> Q3 -> R16 -> Q4 gate, R4 pull-up to +12V, R8 pull-down. High = fan on, boot/reset = off. Fan 1 out J17, Fan 2 out J15.
 - CONFIRMED GPIO4 VBUS divider: R23 (VBUS) / R24 (GND).
