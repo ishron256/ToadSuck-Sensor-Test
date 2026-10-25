@@ -32,6 +32,17 @@ Paste it (or tell the new chat to read it) at the start of the next one.
 - Unused GPIOs left unconnected: 0,1,2,3,6,7,8,9,11,12,18,21,38-42,43,44,45,47,48.
 - GPIO16/GPIO17 drive LEDs D5/D9.
 
+## Bring-up findings (2026-10-25) - 3V3 RAIL FAULT, DO NOT FLASH YET
+- No ESP32-S3 USB device ever enumerated on the PC (no VID 303A, no new COM port). Only Bluetooth COM4/COM5 plus, later, a known-good plain ESP32 dev board on COM3 (CP210x, ESP32-D0WD-V3; NOT an S3, so it cannot run this firmware). Nothing was flashed.
+- Measured 3V3 rail on the PCBs: 2.5 V and 2.7 V on the first two, then 4.2 / 4.1 / 4.0 / 4.0 V on four more boards (pin 2 = OUT). U11 pin 3 (IN) = 12 V; pin 1 (ADJ) about 2.5 V. OUT-ADJ is 1.5-1.7 V, not the 1.25 V of a regulating LM317.
+- U11 LM317 circuit: IN = +12V, OUT = +3.3V, R11 330 R (OUT-ADJ), R12 560 R (ADJ-GND), C6 1 uF across R11. Ideal Vout is about 3.4 V.
+- Diagnosis (likely, not yet bench-confirmed):
+  1. The divider draws only about 4.5 mA, below the LM317 minimum load (about 3.5 mA typ, up to 10 mA max; datasheet suggests R1 = 240 R), so the output floats high when the S3 is not drawing current. 4.2 V exceeds the S3 3.6 V absolute max.
+  2. 12 V to 3.3 V drops about 8.7 V across a small SOT-223 LM317, which means 3-4 W at Wi-Fi peaks of 300-500 mA. It will overheat and sag (earlier 2.5-2.7 V readings).
+- Fix options: (a) replace the LM317 with a 12 V to 3.3 V buck converter (best; a buck module on the 3V3 rail works as a bodge); (b) minimum bench fix R11 about 120 R, R12 about 200 R (about 3.33 V, about 10 mA divider current), still thermally limited, Wi-Fi off only.
+- Do NOT plug an ESP32-S3 into these boards until 3V3 reads about 3.3 V. Check any parts already powered from the 4 V rail.
+- Next steps once the rail is fixed: re-check J4 jumper (pins 2-3), cable J8-J6, find the COM port, flash with PlatformIO, then check BME280 over SPI (CS GPIO10, SD CS GPIO15).
+
 ## Behaviour decisions
 - Humidity unit: absolute humidity (g/m3), computed from BME280 temperature + RH (Magnus formula).
 - One BME280. "Outside" reading is taken after a 12-minute fans-off settle (method inherited from the earlier public-domain SmartVent paper).
