@@ -107,5 +107,6 @@ reading_t sensor_read(void)
     r.rh_pct = (float)x;
     r.ah_gm3 = humidity_abs_gm3(r.temp_c, r.rh_pct);
     r.valid = true;
+    ESP_LOGI(TAG, "T=%.2f C  RH=%.1f %%  AH=%.2f g/m3", r.temp_c, r.rh_pct, r.ah_gm3);
     return r;
 }

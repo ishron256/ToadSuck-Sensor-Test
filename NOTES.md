@@ -32,7 +32,7 @@ Paste it (or tell the new chat to read it) at the start of the next one.
 - Unused GPIOs left unconnected: 0,1,2,3,6,7,8,9,11,12,18,21,38-42,43,44,45,47,48.
 - GPIO16/GPIO17 drive LEDs D5/D9.
 
-## Bring-up findings (2026-10-25) - 3V3 RAIL FAULT, DO NOT FLASH YET
+## Bring-up findings (2026-10-25) - 3V3 RAIL FAULT (superseded below for flashing/BME280)
 - No ESP32-S3 USB device ever enumerated on the PC (no VID 303A, no new COM port). Only Bluetooth COM4/COM5 plus, later, a known-good plain ESP32 dev board on COM3 (CP210x, ESP32-D0WD-V3; NOT an S3, so it cannot run this firmware). Nothing was flashed.
 - Measured 3V3 rail on the PCBs: 2.5 V and 2.7 V on the first two, then 4.2 / 4.1 / 4.0 / 4.0 V on four more boards (pin 2 = OUT). U11 pin 3 (IN) = 12 V; pin 1 (ADJ) about 2.5 V. OUT-ADJ is 1.5-1.7 V, not the 1.25 V of a regulating LM317.
 - U11 LM317 circuit: IN = +12V, OUT = +3.3V, R11 330 R (OUT-ADJ), R12 560 R (ADJ-GND), C6 1 uF across R11. Ideal Vout is about 3.4 V.
@@ -42,6 +42,16 @@ Paste it (or tell the new chat to read it) at the start of the next one.
 - Fix options: (a) replace the LM317 with a 12 V to 3.3 V buck converter (best; a buck module on the 3V3 rail works as a bodge); (b) minimum bench fix R11 about 120 R, R12 about 200 R (about 3.33 V, about 10 mA divider current), still thermally limited, Wi-Fi off only.
 - Do NOT plug an ESP32-S3 into these boards until 3V3 reads about 3.3 V. Check any parts already powered from the 4 V rail.
 - Next steps once the rail is fixed: re-check J4 jumper (pins 2-3), cable J8-J6, find the COM port, flash with PlatformIO, then check BME280 over SPI (CS GPIO10, SD CS GPIO15).
+
+## Bring-up results (2026-10-26 / 2026-11-01) - FLASHING AND EXTERNAL BME280 WORK
+- USB flashing works: S3 enumerates as USB Serial/JTAG (VID 303A PID 1001), COM6 on this PC, MAC 10:20:ba:1b:1d:ec. `pio run -e esp32-s3-wroom-n4 -t upload --upload-port COM6` succeeds (18 s incremental; a first build of a new env takes 4-7 min). Flash detected 4 MB quad.
+- J4 jumper was on 2-3 (GPIO46 LOW). Boots from flash, Wi-Fi AP comes up at 192.168.4.1, state machine runs STARTUP_TEST -> OUTSIDE_SETTLE.
+- Reset caveat: toggling RTS from a serial tool drops the chip into download mode ("waiting for download"). Press the S2 reset switch to boot the app. The port re-enumerates on every reset, so serial capture must reopen COM6.
+- ON-BOARD BME280 (U3) via J8-J6 cable: chip id reads 0x00 or 0xFF (expected 0x60), both with the SPI driver and a raw bit-banged read (`pio run -e bme280-bitbang`, src/bb_test.c). So the driver is not at fault; U3 / its path is not responding. Not yet diagnosed (check U3 placement and solder, VDD/VDDIO, CSB).
+- EXTERNAL BME280 MODULE wired to J8 (1 VCC 3.3 V, 2 SDO -> GPIO37, 3 SCL via R25 -> GPIO36, 4 SDA -> GPIO35, 5 CSB -> GPIO10, 6 GND): bit-bang chip id = 0x60, status 0xF3 = 0x00. Production firmware init succeeds and logs `T=27.96 C RH=48.1 % AH=13.07 g/m3` at the end of the 4 s start-up test. SPI wiring, CS GPIO10 and the driver are validated.
+- SD card: mount fails (0x108 invalid response / 0x107 timeout); CS GPIO15. Not yet checked whether a card was inserted. Non-fatal by design.
+- Reminder: the 3V3 LM317 fault above still needs a real fix (buck converter); bench power used for these tests is not the final design.
+- sensor.c now logs each valid reading (T, RH, AH) at INFO level.
 
 ## Behaviour decisions
 - Humidity unit: absolute humidity (g/m3), computed from BME280 temperature + RH (Magnus formula).

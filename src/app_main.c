@@ -104,9 +104,17 @@ static void step(void)
     }
 }
 
+#ifdef BME280_BITBANG_TEST
+void bb_test_run(void);
+#endif
+
 void app_main(void)
 {
     fans_init();   /* first, so fans stay off */
+
+#ifdef BME280_BITBANG_TEST
+    bb_test_run();   /* never returns */
+#endif
 
     esp_err_t e = nvs_flash_init();
     if (e == ESP_ERR_NVS_NO_FREE_PAGES || e == ESP_ERR_NVS_NEW_VERSION_FOUND) {
