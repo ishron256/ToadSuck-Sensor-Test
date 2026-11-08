@@ -103,3 +103,25 @@ Paste it (or tell the new chat to read it) at the start of the next one.
 - External BME280 on J8 read ~24.4 C / 42-44 %RH; state machine ran STARTUP_TEST > OUTSIDE_SETTLE > DECIDE > FAN_RUN; both fans confirmed running by user.
 - An earlier run read T=0/RH=0 with valid=1 (module unseated, MISO low); sensor.c should reject all-zero/0xFF frames (TODO).
 - On-board BME280 (U3), SD mount and LM317 3V3 rail still open.
+
+### Resume point (state at end of 2026-11-08)
+**Board state:** production firmware (env `esp32-s3-wroom-n4`) flashed on COM6 (USB Serial/JTAG, VID 303A PID 1001, MAC 10:20:ba:1b:1d:ec). J4 on 2-3. External BME280 module wired to J8 (1 VCC 3V3, 2 SDO->GPIO37, 3 SCL via R25->GPIO36, 4 SDA->GPIO35, 5 CSB->GPIO10, 6 GND). Fans on J17 (Fan 1, GPIO13) and J15 (Fan 2, GPIO14), 12 V on.
+
+**Verified working:** PlatformIO build + USB flash; Wi-Fi AP at 192.168.4.1; custom SPI BME280 driver (ID 0x60, valid readings); full state machine; both fans.
+
+**Test commands** (PowerShell, `pio` = `$env:USERPROFILE\.platformio\penv\Scripts\pio.exe`):
+- Production: `pio run -e esp32-s3-wroom-n4 -t upload --upload-port COM6`
+- System test (forced fan run, 20 s settle, 60 s fans, `live:` log every 5 s): `pio run -e system-test -t upload --upload-port COM6`
+- Bit-bang ID/status check: `pio run -e bme280-bitbang -t upload --upload-port COM6`
+- First build of an env takes 4-7 min; incremental ~20 s. If an upload stalls with no output, stop and rerun.
+- Serial: the port re-enumerates on every reset, so a capture script must reopen COM6 in a loop with DTR/RTS false. Toggling RTS enters download mode; press S2 (reset) to boot the app.
+
+**Manual checks to do next:**
+1. On-board BME280 U3: reads 0x00/0xFF (not responding). Check solder/placement, VDD/VDDIO at U3, CSB to GPIO10 continuity, MISO (R21 pull-up) and that J8-J6 cable path is not disturbing the on-board sensor.
+2. SD card: mount fails (0x108/0x107). Confirm a card is inserted and check SD CS = GPIO15 and card supply. Non-fatal.
+3. 3V3 rail: LM317 U11 (12 V in, R11 330R / R12 560R) read 2.5-4.2 V on several boards. Measure under real load and U11 temperature; never exceed 3.6 V on the S3. Planned fix: buck converter.
+4. If the sensor reads T=0/RH=0, re-seat the J8 module (MISO low).
+
+**Code TODOs:** make `sensor.c` reject all-zero and 0xFF frames (currently reports valid=1); custom partition table; cold-lockout items; replace placeholder AP password (`change-me-please`). `SYSTEM_TEST` build flag and the `config.h` timing overrides are test-only.
+
+**Git:** branch `ishron256-flash-firmware-bme280-check`, all work committed.
