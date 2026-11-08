@@ -69,6 +69,11 @@ static void step(void)
         if (!s_in.valid || !s_out.valid) { enter(ST_IDLE); break; }
         if (c_to_f(s_out.temp_c) < COLD_LOCKOUT_F) { enter(ST_COLD_SLEEP); break; }
         float delta = s_in.ah_gm3 - s_out.ah_gm3;   /* inside - outside */
+#ifdef SYSTEM_TEST
+        ESP_LOGI(TAG, "DECIDE: inside AH=%.2f outside AH=%.2f delta=%.2f (forced FAN_RUN for test)", s_in.ah_gm3, s_out.ah_gm3, delta);
+        enter(ST_FAN_RUN);
+        break;
+#endif
         enter(delta >= -AH_DELTA_ON_GM3 ? ST_FAN_RUN : ST_RETRY);
         break;
     }
@@ -142,6 +147,15 @@ void app_main(void)
         }
 
         web_update(NAMES[s_state], &s_in, &s_out, fan2_is_on());
+#ifdef SYSTEM_TEST
+        static int64_t last_live;
+        if (now_ms() - last_live > 5000) {
+            last_live = now_ms();
+            reading_t r = sensor_read();
+            ESP_LOGI(TAG, "live: state=%s fan2=%d T=%.2f C RH=%.1f %% AH=%.2f valid=%d",
+                     NAMES[s_state], fan2_is_on(), r.temp_c, r.rh_pct, r.ah_gm3, r.valid);
+        }
+#endif
         if (now_ms() - last_log > 60000) {
             last_log = now_ms();
             storage_log(NAMES[s_state], &s_in, &s_out);

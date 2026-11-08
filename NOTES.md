@@ -97,3 +97,9 @@ Paste it (or tell the new chat to read it) at the start of the next one.
 - The KiCad schematic (.kicad_sch) and PCB (.kicad_pcb), or a PDF export.
 - Any answers to the open items above.
 - The ESP32-S3 TRM PDF only if register-level checks are needed again.
+
+## System test (2026-11-08)
+- env system-test (-DSYSTEM_TEST, 20 s settle, 60 s forced FAN_RUN) flashed to COM6.
+- External BME280 on J8 read ~24.4 C / 42-44 %RH; state machine ran STARTUP_TEST > OUTSIDE_SETTLE > DECIDE > FAN_RUN; both fans confirmed running by user.
+- An earlier run read T=0/RH=0 with valid=1 (module unseated, MISO low); sensor.c should reject all-zero/0xFF frames (TODO).
+- On-board BME280 (U3), SD mount and LM317 3V3 rail still open.

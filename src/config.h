@@ -21,12 +21,18 @@
 #define AP_PASSWORD     "change-me-please"   /* TODO: real credentials, >= 8 chars */
 
 /* Behaviour (all times are uptime since reset) */
+#ifndef STARTUP_FAN1_TEST_MS
 #define STARTUP_FAN1_TEST_MS    (4u * 1000u)              /* confirmed */
+#endif
+#ifndef OUTSIDE_SETTLE_MS
 #define OUTSIDE_SETTLE_MS       (12u * 60u * 1000u)
+#endif
 #define COLD_LOCKOUT_F          35.0f                     /* TODO confirm */
 #define COLD_SLEEP_MS           (6u * 3600u * 1000u)
 #define COLD_STIR_MS            (20u * 60u * 1000u)       /* confirmed */
+#ifndef FAN_RUN_MS
 #define FAN_RUN_MS              (106u * 60u * 1000u)
+#endif
 #define RETRY_MS                (5u * 60u * 1000u)        /* confirmed: outside wetter -> retry every 5 min, no timeout */
 #define AH_DELTA_ON_GM3         (-0.5f)  /* confirmed: fans run when outside is >= 0.5 g/m3 drier than inside (inside - outside >= 0.5) */
 #define WDT_FEED_PERIOD_MS      1000u
