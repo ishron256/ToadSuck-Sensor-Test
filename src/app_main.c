@@ -12,6 +12,7 @@
 #include "nvs_flash.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "driver/gpio.h"
 
 static const char *TAG = "smartvent";
 
@@ -116,7 +117,10 @@ void bb_test_run(void);
 void app_main(void)
 {
     fans_init();   /* first, so fans stay off */
-
+    gpio_config_t led = { .pin_bit_mask = (1ULL << PIN_LED_D5) | (1ULL << PIN_LED_D9), .mode = GPIO_MODE_OUTPUT };
+    gpio_config(&led);
+    gpio_set_level(PIN_LED_D5, 0);
+    gpio_set_level(PIN_LED_D9, 0);
 #ifdef BME280_BITBANG_TEST
     bb_test_run();   /* never returns */
 #endif
@@ -147,6 +151,9 @@ void app_main(void)
         }
 
         web_update(NAMES[s_state], &s_in, &s_out, fan2_is_on());
+        static int hb;
+        gpio_set_level(PIN_LED_D5, (hb++) & 1);
+        gpio_set_level(PIN_LED_D9, fan2_is_on());
 #ifdef SYSTEM_TEST
         static int64_t last_live;
         if (now_ms() - last_live > 5000) {

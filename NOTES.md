@@ -131,3 +131,8 @@ Paste it (or tell the new chat to read it) at the start of the next one.
 - system-test env: external BME280 read ~18 C / 43-44 %RH; state machine and forced 60 s FAN_RUN OK; both fans confirmed by user.
 - SD card mounted OK (no mount warning; cmd52/cmd5 'not supported' lines are normal SDIO probes).
 - Still open: on-board BME280 U3 (this run used the J8 module).
+
+## Near-production test (2026-11-15)
+- New env full-test: production timings (12 min settle) + forced fan decision + 20 min FAN_RUN + live log. Run pio run -e full-test -t upload --upload-port COM6.
+- Added LEDs: D5 (GPIO16) heartbeat toggling each 1 s loop, D9 (GPIO17) on while fans run. Polarity assumed active high; works on this board.
+- Result: STARTUP_TEST > 12 min settle > DECIDE > FAN_RUN (exactly 20 min, both fans) > OUTSIDE_SETTLE again. Sensor ~18 C / 43 %RH. User confirmed D5 blinking, D9 on, both fans running. Wi-Fi AP up at 192.168.4.1. SD mounted.

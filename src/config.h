@@ -5,6 +5,8 @@
 #define PIN_FAN1        13   /* active high: N-FET/P-FET stage passes 12 V */
 #define PIN_FAN2        14   /* active high: Fan 2 + external fans */
 #define PIN_SNSR2        5   /* spare, unused */
+#define PIN_LED_D5      16   /* heartbeat (polarity assumed active high) */
+#define PIN_LED_D9      17   /* on while fans run (polarity assumed active high) */
 #define PIN_VBUS_SENSE   4   /* via divider from 5 V VBUS */
 #define PIN_SD_MISO     37
 #define PIN_SD_SCK      36
