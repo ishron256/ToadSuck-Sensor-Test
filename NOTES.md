@@ -125,3 +125,9 @@ Paste it (or tell the new chat to read it) at the start of the next one.
 **Code TODOs:** make `sensor.c` reject all-zero and 0xFF frames (currently reports valid=1); custom partition table; cold-lockout items; replace placeholder AP password (`change-me-please`). `SYSTEM_TEST` build flag and the `config.h` timing overrides are test-only.
 
 **Git:** branch `ishron256-flash-firmware-bme280-check`, all work committed.
+
+## Full-board test (2026-11-15)
+- 3V3 rail fixed by user. sensor.c now rejects all-zero/0xFF frames and bad calibration (T1=0/0xFFFF).
+- system-test env: external BME280 read ~18 C / 43-44 %RH; state machine and forced 60 s FAN_RUN OK; both fans confirmed by user.
+- SD card mounted OK (no mount warning; cmd52/cmd5 'not supported' lines are normal SDIO probes).
+- Still open: on-board BME280 U3 (this run used the J8 module).

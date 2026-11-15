@@ -62,6 +62,10 @@ esp_err_t sensor_init(void)
     c.T1 = a[0] | (a[1] << 8);
     c.T2 = (int16_t)(a[2] | (a[3] << 8));
     c.T3 = (int16_t)(a[4] | (a[5] << 8));
+    if (c.T1 == 0 || c.T1 == 0xFFFF) {
+        ESP_LOGE(TAG, "invalid calibration data (T1=0x%04X)", c.T1);
+        return ESP_ERR_INVALID_RESPONSE;
+    }
     c.H1 = a[25];
     c.H2 = (int16_t)(h[0] | (h[1] << 8));
     c.H3 = h[2];
@@ -85,6 +89,9 @@ reading_t sensor_read(void)
 
     uint8_t d[8];
     if (reg_read(0xF7, d, 8) != ESP_OK) return r;
+    bool all0 = true, allff = true;
+    for (int i = 0; i < 8; i++) { if (d[i] != 0x00) all0 = false; if (d[i] != 0xFF) allff = false; }
+    if (all0 || allff) return r;   /* MISO stuck low/high: no sensor */
     int32_t adc_t = ((int32_t)d[3] << 12) | ((int32_t)d[4] << 4) | (d[5] >> 4);
     int32_t adc_h = ((int32_t)d[6] << 8) | d[7];
     if (adc_t == 0x80000 || adc_h == 0x8000) return r;   /* measurement skipped/not ready */
