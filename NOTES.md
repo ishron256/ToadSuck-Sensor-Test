@@ -122,7 +122,7 @@ Paste it (or tell the new chat to read it) at the start of the next one.
 3. 3V3 rail: LM317 U11 (12 V in, R11 330R / R12 560R) read 2.5-4.2 V on several boards. Measure under real load and U11 temperature; never exceed 3.6 V on the S3. Planned fix: buck converter.
 4. If the sensor reads T=0/RH=0, re-seat the J8 module (MISO low).
 
-**Code TODOs:** make `sensor.c` reject all-zero and 0xFF frames (currently reports valid=1); custom partition table; cold-lockout items; replace placeholder AP password (`change-me-please`). `SYSTEM_TEST` build flag and the `config.h` timing overrides are test-only.
+**Code TODOs:** custom partition table; cold-lockout items; AP password now ToadSuck123 (done). `SYSTEM_TEST` build flag and the `config.h` timing overrides are test-only.
 
 **Git:** branch `ishron256-flash-firmware-bme280-check`, all work committed.
 
@@ -136,3 +136,10 @@ Paste it (or tell the new chat to read it) at the start of the next one.
 - New env full-test: production timings (12 min settle) + forced fan decision + 20 min FAN_RUN + live log. Run pio run -e full-test -t upload --upload-port COM6.
 - Added LEDs: D5 (GPIO16) heartbeat toggling each 1 s loop, D9 (GPIO17) on while fans run. Polarity assumed active high; works on this board.
 - Result: STARTUP_TEST > 12 min settle > DECIDE > FAN_RUN (exactly 20 min, both fans) > OUTSIDE_SETTLE again. Sensor ~18 C / 43 %RH. User confirmed D5 blinking, D9 on, both fans running. Wi-Fi AP up at 192.168.4.1. SD mounted.
+
+## Multi-day soak test (started 2026-11-15)
+- AP credentials set by owner: SSID ToadSuck, password ToadSuck123 (src/config.h). Supersedes the earlier placeholder password.
+- Production firmware (env esp32-s3-wroom-n4, with LEDs D5/D9 and zero-frame rejection) flashed to COM6; board left running for several days on bench power with J8 BME280 module, fans on J17/J15, SD card inserted.
+- Production logic only: fans run only when inside AH - outside AH >= 0.5 g/m3 (12 min settle, 106 min run); otherwise RETRY every 5 min. Expect few/no fan runs on a bench. Logs go to /sdcard/log.csv every 60 s; web page at http://192.168.4.1.
+- To review: pull log.csv from the SD card, check for resets/state stuck restarts, and AP/web availability.
+- Still open: on-board BME280 U3, cold-lockout TODOs, custom partition table.

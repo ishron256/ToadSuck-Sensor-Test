@@ -19,8 +19,8 @@
 #define PIN_BME280_CS   10
 
 /* Wi-Fi AP */
-#define AP_SSID         "TSI_SmartVent"
-#define AP_PASSWORD     "change-me-please"   /* TODO: real credentials, >= 8 chars */
+#define AP_SSID         "ToadSuck"
+#define AP_PASSWORD     "ToadSuck123"   /* >= 8 chars; owner-specified */
 
 /* Behaviour (all times are uptime since reset) */
 #ifndef STARTUP_FAN1_TEST_MS
